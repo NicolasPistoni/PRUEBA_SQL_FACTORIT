@@ -1,0 +1,17 @@
+declare	@var2 table(id varchar(10),alicuota money) --variable temporal para hacer la busqueda ya que la tabla solo trae una columna
+ 
+insert into @var2(id ,alicuota)
+select  SUBSTRING ( Línea ,1 , 10 ), cast(SUBSTRING (Línea ,11 ,12)as money)/100.00 from ImpuestoSolidario
+select * from  @var2 /*consultas de control*/
+
+
+select (select precio * (alicuota/100) + precio from autos where modeloCod = id),id 
+from  @var2
+where id in (select modeloCod from autos)
+
+select * from autos
+where modeloCod in (select id from @var2)
+
+/*actualizacion de datos*/
+update Autos set precio = (select precio * (alicuota/100) + precio  from @var2 where id = modeloCod)
+where modeloCod in (select id from @var2)
